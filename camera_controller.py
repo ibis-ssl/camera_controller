@@ -6,7 +6,7 @@ import time
 import json
 import math
 from typing import Tuple, Optional
-import ssl_detection_pb2  # SSL-VisionのProtobufファイルから生成
+import ssl_vision_wrapper_pb2  # SSL-VisionのProtobufファイルから生成
 
 @dataclass
 class CameraConfig:
@@ -51,8 +51,10 @@ class BallTrackingCamera:
         """SSL-Visionからフレームを受信しボールの位置を返す"""
         try:
             data, _ = self.ssl_socket.recvfrom(2048)
-            frame = ssl_detection_pb2.SSL_DetectionFrame()
-            frame.ParseFromString(data)
+            wrapper_packet = ssl_vision_wrapper_pb2.SSL_WrapperPacket()
+            wrapper_packet.ParseFromString(data)
+
+            frame = wrapper_packet.detection
             
             if frame.balls:
                 # 最も確信度の高いボールを選択
